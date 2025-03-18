@@ -1,48 +1,56 @@
-function rotateObject(object) {
-    let mouseDown = false;
-    let lastTouchX = 0;
-    let lastTouchY = 0;
+export function setupCameraRotation(camera, allowCameraRotationCheckbox) {
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
 
-    // Eventos para mouse (desktop)
+    // Função para rotacionar a câmera
+    function rotateCamera(event) {
+        if (!allowCameraRotationCheckbox.checked) return; // Sai se o checkbox não estiver ativo
+
+        const deltaX = event.clientX - previousMousePosition.x;
+        const deltaY = event.clientY - previousMousePosition.y;
+
+        camera.rotation.y += deltaX * 0.005;
+        camera.rotation.x += deltaY * 0.005;
+
+        previousMousePosition.x = event.clientX;
+        previousMousePosition.y = event.clientY;
+    }
+
+    // Eventos de mouse
     document.addEventListener('mousedown', (event) => {
-        mouseDown = true;
-    });
-
-    document.addEventListener('mouseup', (event) => {
-        mouseDown = false;
-    });
-
-    document.addEventListener('mousemove', (event) => {
-        if (mouseDown) {
-            object.rotation.y += event.movementX * 0.01;
-            object.rotation.x += event.movementY * 0.01;
+        if (allowCameraRotationCheckbox.checked) {
+            isDragging = true;
+            previousMousePosition.x = event.clientX;
+            previousMousePosition.y = event.clientY;
         }
     });
 
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (isDragging && allowCameraRotationCheckbox.checked) {
+            rotateCamera(event);
+        }
+    });
+
+    // Eventos de toque
     document.addEventListener('touchstart', (event) => {
-        mouseDown = true;
-        if (event.touches.length == 1) {
-            lastTouchX = event.touches[0].clientX;
-            lastTouchY = event.touches[0].clientY;
+        if (allowCameraRotationCheckbox.checked && event.touches.length === 1) {
+            isDragging = true;
+            previousMousePosition.x = event.touches[0].clientX;
+            previousMousePosition.y = event.touches[0].clientY;
         }
     });
 
     document.addEventListener('touchend', () => {
-        mouseDown = false;
+        isDragging = false;
     });
 
     document.addEventListener('touchmove', (event) => {
-        if (mouseDown && event.touches.length == 1) {
-            const deltaX = event.touches[0].clientX - lastTouchX;
-            const deltaY = event.touches[0].clientY - lastTouchY;
-
-            object.rotation.y += deltaX * 0.005;
-            object.rotation.x += deltaY * 0.005;
-
-            lastTouchX = event.touches[0].clientX;
-            lastTouchY = event.touches[0].clientY;
+        if (isDragging && allowCameraRotationCheckbox.checked && event.touches.length === 1) {
+            rotateCamera(event.touches[0]);
         }
     });
 }
-
-export { rotateObject };

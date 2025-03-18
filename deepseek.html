@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Terrell-Penrose Rotation Simulation</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Initialize scene, camera, and renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create a cube with wireframe material
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x00ff00,
+            wireframe: true // Wireframe for better visibility of rotation
+        });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Position camera
+        camera.position.z = 15;
+        camera.position.y = 2;
+        camera.lookAt(0, 0, 0);
+
+        // Animation variables
+        let velocity = 0.08;
+        const maxX = 10; // Maximum horizontal position
+
+        // Handle window resize
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update cube position
+            cube.position.x += velocity;
+
+            // Reverse direction at boundaries
+            if (Math.abs(cube.position.x) > maxX) {
+                velocity = -velocity;
+            }
+
+            /**
+             * Simplified Terrell-Penrose effect simulation:
+             * Rotate cube based on its horizontal position
+             * The rotation factor (Math.PI/4) controls the maximum rotation angle (45 degrees)
+             */
+            cube.rotation.y = (cube.position.x / maxX) * Math.PI/4;
+
+            // Add slight vertical rotation for better visualization
+            cube.rotation.x = 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

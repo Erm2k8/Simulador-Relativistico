@@ -1,4 +1,3 @@
-// background.js
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
 
 export function createStars(scene, numStars) {
@@ -23,5 +22,5 @@ export function createStars(scene, numStars) {
 }
 
 export function animateStars(starField, velocity = 1) {
-    starField.rotation.y += 0.001 * velocity;
+    starField.rotation.x -= 0.001 * velocity;
 }
